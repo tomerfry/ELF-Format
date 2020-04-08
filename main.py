@@ -1,8 +1,12 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 import argparse
+import struct
+
 from elf import Elf
 
+
 FILE_NAME_ARG = 'file_name'
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Parse a ELF file ELF header.')
@@ -16,9 +20,11 @@ def main():
     with open(arguments.get(FILE_NAME_ARG), 'rb') as f:
         try:
             elf_obj = Elf(f)
-            print(elf_obj.arch)
+            print(elf_obj.e_ident)
         except AttributeError as e:
             print('Error: {}'.format(str(e)))
+        except struct.error:
+            print('Parsing Error')
 
 
 if __name__=='__main__':
