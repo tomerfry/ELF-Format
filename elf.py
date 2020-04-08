@@ -27,24 +27,27 @@ class Elf(object):
         self.file_content = file.read()
         elf_header = self.file_content[:ELF_HEADER_LEN]
         
-        self._parse_elf_header(elf_header)
-        self._parse_phdrs()
+        self.ehdr = self._parse_elf_header(elf_header)
+        self.phdrs = self._parse_phdrs()
 
     def _parse_elf_header(self, elf_header):
         ehdr_values = struct.unpack(ELF_HEADER_FORMAT, elf_header)
-        self.ehdr = collect_struct_fields(ELF_HEADER_FIELDS, ehdr_values)
+        ehdr = collect_struct_fields(ELF_HEADER_FIELDS, ehdr_values)
+        return ehdr
 
     def _parse_phdrs(self):
         phoff = self.ehdr.get('e_phoff')
         phnum = self.ehdr.get('e_phnum')
         phentsize = self.ehdr.get('e_phentsize')
 
-        phdrs = self.file_content[phoff:phoff+(phentsize * phnum)]
-        self.phdrs = []
+        raw_phdrs = self.file_content[phoff:phoff+(phentsize * phnum)]
+        phdrs = []
 
-        for offset in range(0, len(phdrs), phentsize):
-            phdr = phdrs[offset: offset + phentsize]
-            self.phdrs.append(self._parse_phdr(phdr))
+        for offset in range(0, len(raw_phdrs), phentsize):
+            phdr = raw_phdrs[offset: offset + phentsize]
+            phdrs.append(self._parse_phdr(phdr))
+
+        return phdrs
 
     def _parse_phdr(self, phdr):
         phdr_values = struct.unpack(PHDR_FORMAT, phdr)
@@ -52,13 +55,24 @@ class Elf(object):
 
     def save_as(self, file_name):
         raw_elf_header = self._pack_elf_header()
-        content = raw_elf_header + self.file_content[ELF_HEADER_LEN:]
+        raw_phdrs = self._pack_phdrs()
 
         with open(file_name, 'wb') as new_file:
-            new_file.write(content)
+            new_file.write(self.file_content)
+            new_file.seek(0)
+            new_file.write(raw_elf_header)
+            new_file.seek(self.ehdr.get('e_phoff'))
+            new_file.write(raw_phdrs)
 
     def _pack_elf_header(self):
         return struct.pack(ELF_HEADER_FORMAT, *self.ehdr.values())
+
+    def _pack_phdrs(self):
+        raw_phdrs = b''
+
+        for phdr in self.phdrs:
+            raw_phdrs += struct.pack(PHDR_FORMAT, *phdr.values())
+        return raw_phdrs
 
 def collect_struct_fields(field_names, values):
     od = OrderedDict()
