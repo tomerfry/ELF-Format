@@ -20,11 +20,12 @@ def main():
     with open(arguments.get(FILE_NAME_ARG), 'rb') as f:
         try:
             elf_obj = Elf(f)
-            print(elf_obj.phdrs[0])
+            elf_obj.ehdr['ei_class'] = 1 
+            elf_obj.save_as('new_simple')
         except ValueError as e:
             print('Error: {}'.format(str(e)))
-        except struct.error:
-            print('Parsing Error')
+        except struct.error as e:
+            print('Parsing Error: {}'.format(str(e)))
 
 
 if __name__=='__main__':
