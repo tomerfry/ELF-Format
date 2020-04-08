@@ -20,8 +20,8 @@ def main():
     with open(arguments.get(FILE_NAME_ARG), 'rb') as f:
         try:
             elf_obj = Elf(f)
-            print(elf_obj.e_ident)
-        except AttributeError as e:
+            print(elf_obj.phdrs[0])
+        except ValueError as e:
             print('Error: {}'.format(str(e)))
         except struct.error:
             print('Parsing Error')
