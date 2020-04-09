@@ -13,17 +13,23 @@ ELF_MAGIC = b'\x7fELF'
 ELF_MAGIC_LEN = 4
 
 CLASS_ARCH_64 = 2
-DATA_2_LSB = 1
 
 PHDR_FORMAT = '<2I6Q'
 PHDR_ENTRY_FIELDS = ['p_type', 'p_flags', 'p_offset', 'p_vaddr',
                      'p_paddr', 'p_filesz', 'p_memsz', 'p_align']
+
+SHDR_INVALID_OFFSET = 0
+SHDR_FORMAT = '<2I4Q2I2Q'
+SHDR_ENTRY_FIELDS = ['sh_name', 'sh_type', 'sh_flags', 'sh_addr', 'sh_offset',
+					 'sh_size', 'sh_link', 'sh_info', 
+					 'sh_addralign', 'sh_entsize']
 
 
 def parse_elf_header(raw_ehdr):
     ehdr_values = struct.unpack(ELF_HEADER_FORMAT, raw_ehdr)
     ehdr = collect_struct_fields(ELF_HEADER_FIELDS, ehdr_values)
     return ehdr
+
 
 def parse_phdrs(ehdr, file_content):
     phoff = ehdr.get('e_phoff')
@@ -34,16 +40,41 @@ def parse_phdrs(ehdr, file_content):
     phdrs = []
 
     for offset in range(0, len(raw_phdrs), phentsize):
-        phdr = raw_phdrs[offset: offset + phentsize]
-        phdrs.append(parse_phdr(phdr))
+        raw_phdr = raw_phdrs[offset: offset + phentsize]
+        phdrs.append(parse_phdr(raw_phdr))
     return phdrs
+
 
 def parse_phdr(raw_phdr):
     phdr_values = struct.unpack(PHDR_FORMAT, raw_phdr)
     return collect_struct_fields(PHDR_ENTRY_FIELDS, phdr_values)
 
+
+def parse_shdrs(ehdr, file_content):
+	shoff = ehdr.get('e_shoff')
+	shnum = ehdr.get('e_shnum')
+	shentsize = ehdr.get('e_shentsize')
+
+	if shoff == SHDR_INVALID_OFFSET:
+		return None
+
+	raw_shdrs = file_content[shoff:shoff+(shnum * shentsize)]
+	shdrs = []
+
+	for offset in range(0, len(raw_shdrs), shentsize):
+		raw_shdr = raw_shdrs[offset:offset+shentsize]
+		shdrs.append(parse_shdr(raw_shdr))
+	return shdrs
+
+
+def parse_shdr(raw_shdr):
+	shdr_values = struct.unpack(SHDR_FORMAT, raw_shdr)
+	return collect_struct_fields(SHDR_ENTRY_FIELDS, shdr_values)
+
+
 def pack_elf_header(ehdr):
     return struct.pack(ELF_HEADER_FORMAT, *ehdr.values())
+
 
 def pack_phdrs(phdrs):
     raw_phdrs = b''
@@ -51,6 +82,15 @@ def pack_phdrs(phdrs):
     for phdr in phdrs:
         raw_phdrs += struct.pack(PHDR_FORMAT, *phdr.values())
     return raw_phdrs
+
+
+def pack_shdrs(shdrs):
+	raw_shdrs = b''
+
+	for shdr in shdrs:
+		raw_shdrs += struct.pack(SHDR_FORMAT, *shdr.values())
+	return raw_shdrs
+
 
 def collect_struct_fields(field_names, values):
     od = OrderedDict()
