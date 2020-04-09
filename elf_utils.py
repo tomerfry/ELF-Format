@@ -12,7 +12,7 @@ ELF_HEADER_FIELDS = ['ei_magic', 'ei_class', 'ei_data', 'ei_version',
 ELF_MAGIC = b'\x7fELF'
 ELF_MAGIC_LEN = 4
 
-ARCH_64_BIT = 2
+CLASS_ARCH_64 = 2
 DATA_2_LSB = 1
 
 PHDR_FORMAT = '<2I6Q'

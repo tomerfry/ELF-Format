@@ -12,6 +12,12 @@ class Elf(object):
         elf_header = self.file_content[:ELF_HEADER_LEN]
         
         self.ehdr = parse_elf_header(elf_header)
+
+        if self.ehdr['ei_magic'] != ELF_MAGIC:
+            raise ValueError('Not an ELF file.')
+        elif self.ehdr['ei_class'] != CLASS_ARCH_64:
+            raise ValueError('Unsupported ELF file.')
+
         self.phdrs = parse_phdrs(self.ehdr, self.file_content)
 
     def save_as(self, file_name):
