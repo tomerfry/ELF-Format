@@ -2,7 +2,8 @@
 import argparse
 import struct
 
-from elf import Elf
+from ELF.elf import Elf
+from infections.silvio_padding import SilvioPaddingInfector
 
 
 FILE_NAME_ARG = 'file_name'
@@ -14,20 +15,15 @@ def parse_args():
     args = parser.parse_args()
     return vars(args)
 
+
 def main():
     arguments = parse_args()
 
-    with open(arguments.get(FILE_NAME_ARG), 'rb') as f:
-        try:
-            elf_obj = Elf(f)
-            elf_obj.ehdr['ei_class'] = 2
-            
-            elf_obj.save_as('new_simple')
-        except ValueError as e:
-            print('Error: {}'.format(str(e)))
-        except struct.error as e:
-            print('Parsing Error: {}'.format(str(e)))
-
-
+    f = open(arguments.get(FILE_NAME_ARG), 'rb')
+    elf_obj = Elf(f)
+    infector = SilvioPaddingInfector()
+    infector.infect(elf_obj, 'new_simple')
+    f.close()
+   
 if __name__=='__main__':
 	main()
