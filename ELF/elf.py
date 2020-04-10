@@ -1,7 +1,7 @@
 import struct
 from collections import OrderedDict
 
-from elf_utils import *
+from ELF.elf_utils import *
 
 PT_LOAD = 1
 PT_NOTE = 4
