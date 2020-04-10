@@ -106,6 +106,13 @@ def get_text_phdr(phdrs):
 	return None
 
 
+def get_data_phdr(phdrs):
+	for phdr in phdrs:
+		if phdr['p_type'] == PT_LOAD and phdr['p_flags'] == PF_R | PF_W:
+			return phdr
+	return None
+
+
 def collect_struct_fields(field_names, values):
     od = OrderedDict()
     for field_name, value in zip(field_names, values):

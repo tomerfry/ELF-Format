@@ -4,7 +4,7 @@ import struct
 
 from ELF.elf import Elf
 from infections.silvio_padding import SilvioPaddingInfector
-
+from infections.note_conversion import NoteInfector
 
 FILE_NAME_ARG = 'file_name'
 
@@ -21,6 +21,9 @@ def main():
 
     f = open(arguments.get(FILE_NAME_ARG), 'rb')
     elf_obj = Elf(f)
+    note_infector = NoteInfector()
+    note_infector.infect(elf_obj, 'new_simple', 'AAAAAAAAAAAAAAAAAA')
+
     f.close()
    
 if __name__=='__main__':
