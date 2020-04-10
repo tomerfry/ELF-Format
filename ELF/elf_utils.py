@@ -113,6 +113,13 @@ def get_data_phdr(phdrs):
 	return None
 
 
+def get_note_phdr(phdrs):
+	for phdr in phdrs:
+		if phdr['p_type'] == PT_NOTE:
+			return phdr
+	return None
+
+
 def collect_struct_fields(field_names, values):
     od = OrderedDict()
     for field_name, value in zip(field_names, values):
