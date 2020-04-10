@@ -17,6 +17,13 @@ CLASS_ARCH_64 = 2
 PHDR_FORMAT = '<2I6Q'
 PHDR_ENTRY_FIELDS = ['p_type', 'p_flags', 'p_offset', 'p_vaddr',
                      'p_paddr', 'p_filesz', 'p_memsz', 'p_align']
+PT_LOAD = 1
+PT_NOTE = 4
+
+PF_X = 0x1
+PF_W = 0x2
+PF_R = 0x4
+PF_MASKPROC = 0xf0000000
 
 SHDR_INVALID_OFFSET = 0
 SHDR_FORMAT = '<2I4Q2I2Q'
@@ -90,6 +97,13 @@ def pack_shdrs(shdrs):
 	for shdr in shdrs:
 		raw_shdrs += struct.pack(SHDR_FORMAT, *shdr.values())
 	return raw_shdrs
+
+
+def get_text_phdr(phdrs):
+	for phdr in phdrs:
+		if phdr['p_type'] == PT_LOAD and phdr['p_flags'] == PF_R | PF_X:
+			return phdr
+	return None
 
 
 def collect_struct_fields(field_names, values):

@@ -3,8 +3,6 @@ from collections import OrderedDict
 
 from ELF.elf_utils import *
 
-PT_LOAD = 1
-PT_NOTE = 4
 
 class Elf(object):
 

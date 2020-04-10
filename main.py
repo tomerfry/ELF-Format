@@ -22,7 +22,7 @@ def main():
     f = open(arguments.get(FILE_NAME_ARG), 'rb')
     elf_obj = Elf(f)
     infector = SilvioPaddingInfector()
-    infector.infect(elf_obj, 'new_simple')
+    infector.infect(elf_obj, 'new_simple', b'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
     f.close()
    
 if __name__=='__main__':
