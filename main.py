@@ -21,8 +21,8 @@ def main():
 
     f = open(arguments.get(FILE_NAME_ARG), 'rb')
     elf_obj = Elf(f)
-    padding_infector = SilvioPaddingInfector()
-    padding_infector.infect(elf_obj, 'new_simple', b'AAAAAAAAAAAAAAAAAA')
+    infector = SilvioPaddingInfector()
+    infector.infect(elf_obj, 'new_simple', b'\x90\xcc')
 
     f.close()
    
